@@ -1,9 +1,24 @@
+function toggleTask(e) {
+    var itemId = $(e.target).data("id");
+    console.log(itemId)
+    var doneValue = Boolean($(e.target).is(':checked'));
+    console.log(doneValue)
+    $.post("/tasks/" + itemId, {
+      _method: "PUT",
+      task: {
+        done: doneValue
+      }
+    }).success(function(data) {
+      console.log(data)
+      var liHtml = taskHtml(data);
+      var $li = $("#listItem-" + data.id);
+      $li.replaceWith(liHtml);
+     
 
-$(function() {
-  // The taskHtml method takes in a JavaScript representation
-  // of the task and produces an HTML representation using
-  // <li> tags
-  function taskHtml(task) {
+
+    } );
+  }
+function taskHtml(task) {
     var checkedStatus = task.done ? "checked" : "";
     var liClass = task.done ? "completed" : "";
     var liElement = '<li id="listItem-' + task.id +'" class="' + liClass + '">' +
@@ -17,29 +32,9 @@ $(function() {
     return liElement;
   }
 
-  // toggleTask takes in an HTML representation of the
-  // an event that fires from an HTML representation of
-  // the toggle checkbox and  performs an API request to toggle
-  // the value of the `done` field
-  function toggleTask(e) {
-    var itemId = $(e.target).data("id");
-
-    var doneValue = Boolean($(e.target).is(':checked'));
-
-    $.post("/tasks/" + itemId, {
-      _method: "PUT",
-      task: {
-        done: doneValue
-      }
-    }).success(function(data) {
-      var liHtml = taskHtml(data);
-      var $li = $("#listItem-" + data.id);
-      $li.replaceWith(liHtml);
-      $('.toggle').change(toggleTask);
-
-      
-    } );
-  }
+$(document).ready(function() {
+ 
+ 
 
   $.get("/tasks").success( function( data ) {
     var htmlString = "";
@@ -50,7 +45,7 @@ $(function() {
     var ulTodos = $('.todo-list');
     ulTodos.html(htmlString);
 
-    $('.toggle').change(toggleTask);
+    $(document).on("change",".toggle",toggleTask);
 
   });
 
@@ -67,7 +62,7 @@ $(function() {
       var htmlString = taskHtml(data);
       var ulTodos = $('.todo-list');
       ulTodos.append(htmlString);
-      $('.toggle').click(toggleTask);
+      $(document).on ("click", ".toggle", toggleTask) 
     });
   });
 
